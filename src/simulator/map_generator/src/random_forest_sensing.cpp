@@ -1,7 +1,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-// #include <pcl/search/kdtree.h>
-#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/search/impl/kdtree.hpp>
+#include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl_conversions/pcl_conversions.h>
 #include <iostream>
 
