@@ -25,6 +25,7 @@
 class MappingProcess
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MappingProcess() {};
     ~MappingProcess() {}; 
     void init(const ros::NodeHandle& nh);

@@ -86,7 +86,7 @@ namespace plan_manage
     std::vector<int> piece_num_container;
 
   public:
-    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PolyTrajOptimizer() {}
     ~PolyTrajOptimizer() {}
 
