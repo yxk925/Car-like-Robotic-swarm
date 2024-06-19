@@ -35,6 +35,7 @@ namespace plan_utils
         // common::VehicleParam vp_;
 
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         Piece() = default;
 
         Piece(double dur, const CoefficientMat &cMat, int s)

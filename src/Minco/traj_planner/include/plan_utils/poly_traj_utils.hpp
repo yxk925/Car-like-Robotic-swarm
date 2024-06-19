@@ -35,6 +35,7 @@ namespace plan_utils
         // common::VehicleParam vp_;
 
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         Piece() = default;
 
         Piece(double dur, const CoefficientMat &cMat, int s)
@@ -357,11 +358,12 @@ namespace plan_utils
     class Trajectory
     {
     private:
-        typedef std::vector<Piece> Pieces;
+        typedef std::vector<Piece, Eigen::aligned_allocator<Piece>> Pieces;
         Pieces pieces;
         int direction;
 
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         Trajectory() = default;
 
         Trajectory(const std::vector<double> &durs,

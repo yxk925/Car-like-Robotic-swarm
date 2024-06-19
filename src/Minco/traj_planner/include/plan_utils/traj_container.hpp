@@ -27,6 +27,7 @@ namespace plan_utils
 
   struct LocalTrajData
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Trajectory traj;
     int drone_id; // A negative value indicates no received trajectories.
     int traj_id;
@@ -38,15 +39,15 @@ namespace plan_utils
   };
 
 
-  typedef std::vector<LocalTrajData> SurroundTrajData;
-  typedef std::vector<LocalTrajData> SingulTrajData;
-  typedef std::vector<FlatTrajData> KinoTrajData;
+  typedef std::vector<LocalTrajData, Eigen::aligned_allocator<LocalTrajData>> SurroundTrajData;
+  typedef std::vector<LocalTrajData, Eigen::aligned_allocator<LocalTrajData>> SingulTrajData;
+  typedef std::vector<FlatTrajData, Eigen::aligned_allocator<FlatTrajData>> KinoTrajData;
 
 
   class TrajContainer
   {
   public:
-    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SurroundTrajData surround_traj;
     int traj_id = 0;
 

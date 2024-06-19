@@ -8,7 +8,7 @@
     <arg name="origin_z" value="0.1"/>
 
     <arg name="lidar_height" value="0.0"/>
-    <arg name="cars_num" value="8" />
+    <arg name="cars_num" value="1" />
 
     <include file="$(find traj_planner)/launch/rviz.launch">
     </include>
