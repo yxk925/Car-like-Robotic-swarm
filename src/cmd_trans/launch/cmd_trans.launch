@@ -1,0 +1,14 @@
+<launch>
+    <arg name="car_id" default="0"/>
+    <arg name="cmd_topic" default="/diffbot/mobile_base_controller/cmd_vel"/>
+    <arg name="traj_topic" default="/car_$(arg car_id)/trajectory"/>
+    
+    <node pkg="cmd_trans" name="cmd_trans" type="cmd_trans_node" output="screen" >
+      <remap from="~traj" to="$(arg traj_topic)"/>
+      <remap from="~cmd_vel" to="$(arg cmd_vel)"/>
+
+      <param name="car_id" value="$(arg car_id)"/>
+
+
+  </node>
+</launch>

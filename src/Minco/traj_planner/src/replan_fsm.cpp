@@ -49,7 +49,7 @@ void ReplanFSM::OdomCallback(const nav_msgs::Odometry& msg)
     tf::Transform transform;
     transform.setOrigin(tf::Vector3(cur_pos_(0), cur_pos_(1), 0.0));
     tf::Quaternion q;
-    q.setRPY(0, 0, cur_yaw_);
+    q.setRPY(0, 0, cur_yaw_+ 3.1415926 / 2);
     transform.setRotation(q);
     br.sendTransform(tf::StampedTransform(transform, msg.header.stamp, "map", "car_"+to_string(car_id_)+"_pos"));
 }
@@ -57,10 +57,10 @@ void ReplanFSM::OdomCallback(const nav_msgs::Odometry& msg)
 void ReplanFSM::ParkingCallback(const geometry_msgs::PoseStamped &msg)
 {
     std::cout << "Triggered parking mode!" << std::endl;
-    // end_pt_ << msg.pose.position.x, msg.pose.position.y, 
-    //            tf::getYaw(msg.pose.orientation), 1.0e-2;
-    end_pt_ << target_x_, target_y_, 
-               target_yaw_, 1.0e-2;
+    end_pt_ << msg.pose.position.x, msg.pose.position.y, 
+                tf::getYaw(msg.pose.orientation), 1.0e-2;
+    // end_pt_ << target_x_, target_y_, 
+       //        target_yaw_, 1.0e-2;
     std::cout<<"end_pt: "<<end_pt_.transpose()<<std::endl;
     
     have_target_ = true;

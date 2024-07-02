@@ -40,6 +40,11 @@ find_package(catkin REQUIRED COMPONENTS
     # pluginlib
 )
 
+
+message("catkin_INCLUDE_DIRS=${catkin_INCLUDE_DIRS}")
+message("EIGEN3_INCLUDE_DIRS=${EIGEN3_INCLUDE_DIRS}")
+message("catkin_LIBRARIES=${catkin_LIBRARIES}")
+
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
@@ -96,6 +101,10 @@ add_executable(planner_node
 #     plan_utils/poly_traj_utils.hpp
 #     plan_utils/traj_container.hpp
 # )
+
+message("catkin_INCLUDE_DIRS=${catkin_INCLUDE_DIRS}")
+message("EIGEN3_INCLUDE_DIRS=${EIGEN3_INCLUDE_DIRS}")
+message("catkin_LIBRARIES=${catkin_LIBRARIES}")
 
 target_link_libraries(planner_node PRIVATE
     # hkust_pl_common

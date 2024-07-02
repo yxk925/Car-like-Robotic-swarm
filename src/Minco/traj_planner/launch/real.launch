@@ -1,0 +1,52 @@
+  <launch>
+    <arg name="map_size_x" value="90.0"/>
+    <arg name="map_size_y" value="90.0"/>
+    <arg name="map_size_z" value="5.0"/>
+
+    <arg name="origin_x" value="-45.0"/>
+    <arg name="origin_y" value="-45.0"/>
+    <arg name="origin_z" value="0.1"/>
+
+    <arg name="lidar_height" value="0.0"/>
+    <arg name="cars_num" value="1" />
+
+    <include file="$(find traj_planner)/launch/rviz.launch">
+    </include>
+
+    <include file="$(find swarm_bridge)/launch/bridge.launch">
+        <arg name="car_id" value="999" />
+        <arg name="broadcast_ip" value="127.0.0.255" />
+    </include>
+
+    <include file="$(find traj_planner)/launch/run.launch">
+        <arg name="cars_num" value="$(arg cars_num)" />
+        <arg name="car_id" value="0"/>
+        <arg name="car_width" value="0.35"/>
+        <arg name="car_length" value="0.26"/>
+        <arg name="car_wheelbase" value="0.18"/>
+        <arg name="car_front_suspension" value="0.07"/>
+        <arg name="car_rear_suspension" value="0.05"/>
+        <arg name="car_max_steering_angle" value="55.0"/>
+        <arg name="car_d_cr" value="0.08"/>
+        
+        <arg name="target_x" value="35.0"/>
+        <arg name="target_y" value="40.0"/>
+        <arg name="target_yaw" value="1.57"/>
+
+        <arg name="map_size_x" value="$(arg map_size_x)"/>
+        <arg name="map_size_y" value="$(arg map_size_y)"/>
+        <arg name="map_size_z" value="$(arg map_size_z)"/>
+
+        <arg name="origin_x" value="$(arg origin_x)"/>
+        <arg name="origin_y" value="$(arg origin_y)"/>
+        <arg name="origin_z" value="$(arg origin_z)"/>
+
+        <arg name="lidar_height" value="$(arg lidar_height)"/>
+        
+        <arg name="odom_topic" value="/vins_fusion/imu_propagate"/>
+        <arg name="lidar_topic" value="/vins_fusion/point_cloud"/>
+
+        <arg name="map_pub_topic" value="/car_0/map"/>
+    </include>
+
+  </launch>
