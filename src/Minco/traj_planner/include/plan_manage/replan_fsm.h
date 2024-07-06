@@ -79,10 +79,6 @@ public:
 
     void init(ros::NodeHandle &nh);
     std::string odom_topic_ = "map";
-    
-
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 #endif

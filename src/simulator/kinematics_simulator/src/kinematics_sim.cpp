@@ -25,6 +25,7 @@ ros::Publisher  mesh_pub;
 ros::Timer simulate_timer;
 visualization_msgs::Marker marker;
 
+std::recursive_mutex data_mutex;
 // simulator variables
 plan_utils::TrajContainer newest_trajectory;
 std::default_random_engine generator;
@@ -82,6 +83,7 @@ double guassRandom(double std)
 
 void rcvTrajCallBack(const kinematics_simulator::TrajectoryConstPtr traj_msg)
 {
+    std::lock_guard<std::recursive_mutex> data_guard(data_mutex);
     rcv_traj = true;
 
 	plan_utils::MinJerkOpt jerk_opter;
@@ -128,13 +130,14 @@ void rcvTrajCallBack(const kinematics_simulator::TrajectoryConstPtr traj_msg)
 
 void simCallback(const ros::TimerEvent &e)
 {
+  std::lock_guard<std::recursive_mutex> data_guard(data_mutex);
 	nav_msgs::Odometry new_odom;
 
 	double time_now = ros::Time::now().toSec();
 	new_odom.header.stamp    = ros::Time::now();
 	new_odom.header.frame_id = "map";
 
-	if(rcv_traj)
+	if(rcv_traj && newest_trajectory.singul_traj.size() > 0)
 	{
 		plan_utils::Trajectory* cur_segment;
 		int segment_Id = newest_trajectory.locateSingulId(time_now);
@@ -223,8 +226,7 @@ int main (int argc, char** argv)
 	nh.getParam("wheel_base", wheel_base);
 	nh.getParam("noise_std", noise_std);
 	
-	traj_sub = nh.subscribe("traj", 100, rcvTrajCallBack);
-    odom_pub  = nh.advertise<nav_msgs::Odometry>("odom", 10);
+  odom_pub  = nh.advertise<nav_msgs::Odometry>("odom", 10);
 	mesh_pub = nh.advertise<visualization_msgs::Marker>("mesh", 100);
 	
 	x = init_x;
@@ -258,7 +260,8 @@ int main (int argc, char** argv)
 	pos_mesh = Eigen::Vector3d(-0.75, 0.35, 0.0);
 	
 
-    simulate_timer = nh.createTimer(ros::Duration(time_resolution), simCallback);
+	traj_sub = nh.subscribe("traj", 100, rcvTrajCallBack);
+  simulate_timer = nh.createTimer(ros::Duration(time_resolution), simCallback);
 
 	ros::spin();
 

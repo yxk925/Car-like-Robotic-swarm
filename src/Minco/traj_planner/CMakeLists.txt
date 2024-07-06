@@ -2,10 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 project(traj_planner)
 
 set(CMAKE_VERBOSE_MAKEFILE "true")
-set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-std=c++17 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -fPIC")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall")
 
 find_package(OpenMP REQUIRED)
 find_package(Protobuf REQUIRED)
@@ -44,9 +43,12 @@ find_package(catkin REQUIRED COMPONENTS
 message("catkin_INCLUDE_DIRS=${catkin_INCLUDE_DIRS}")
 message("EIGEN3_INCLUDE_DIRS=${EIGEN3_INCLUDE_DIRS}")
 message("catkin_LIBRARIES=${catkin_LIBRARIES}")
+message("OMPL_INCLUDE_DIRS=${OMPL_INCLUDE_DIRS}")
+message("OMPL_LIBRARIES=${OMPL_LIBRARIES}")
 
 include_directories(
     include
+    ${OMPL_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${EIGEN3_INCLUDE_DIRS}
@@ -109,8 +111,8 @@ message("catkin_LIBRARIES=${catkin_LIBRARIES}")
 target_link_libraries(planner_node PRIVATE
     # hkust_pl_common
     # hkust_pl_smm
-    ompl
     "${OpenMP_CXX_FLAGS}"
+    ${OMPL_LIBRARIES}
     ${catkin_LIBRARIES}
     ${Protobuf_LIBRARIES}
 )

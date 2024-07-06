@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(cmd_trans)
 
+set(CMAKE_CXX_FLAGS "-std=c++17 -g")
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -11,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
     Eigen3
     kinematics_simulator
     geometry_msgs
+    traj_planner
 )
 
 message("catkin_INCLUDE_DIRS=${catkin_INCLUDE_DIRS}")

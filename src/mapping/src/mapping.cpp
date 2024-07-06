@@ -7,6 +7,10 @@ using namespace std;
 
 void MappingProcess::init(const ros::NodeHandle& nh)
 {
+    ROS_INFO("MappingProcess::init");
+
+    std::lock_guard<std::recursive_mutex> data_guard(data_mutex_);
+
     nh_ = nh;
     /*---------------       parameters            -----------------*/
     nh_.param("vehicle/cars_num", cars_num_, 1);
@@ -30,10 +34,11 @@ void MappingProcess::init(const ros::NodeHandle& nh)
     nh_.param("mapping/min_occupancy_log", min_occupancy_log_, 0.80);
 
     nh_.param("mapping/lidar_height", lidar_height_, 3.0);
-    nh_.param("mapping/odometry_topic", odom_topic_, odom_topic_);
-    nh_.param("mapping/lidar_topic", lidar_topic_, lidar_topic_);
-    nh_.param("mapping/frame_id", map_frame_id_, map_frame_id_);
-    nh_.param("mapping/map_pub_topic", map_pub_topic_, map_pub_topic_);
+
+    nh_.param<std::string>("mapping/odometry_topic", odom_topic_, string("odom"));
+    nh_.param<std::string>("mapping/lidar_topic", lidar_topic_, string("scan"));
+    nh_.param<std::string>("mapping/frame_id", map_frame_id_, string("basek_link"));
+    nh_.param<std::string>("mapping/map_pub_topic", map_pub_topic_, "map");
     /*---------------------------------------------------------------*/
     /*-------------------   settings   ------------------------*/
     have_odom_ = false;
@@ -62,21 +67,14 @@ void MappingProcess::init(const ros::NodeHandle& nh)
     grid_size_y_multiply_z_ = global_map_size_(1) * global_map_size_(2);
     buffer_size_ = global_map_size_(0) * grid_size_y_multiply_z_; //The size of the global map
     buffer_size_2d_ = global_map_size_(0) * global_map_size_(1);
-    occupancy_buffer_.resize(buffer_size_);
-    occupancy_buffer_2d_.resize(buffer_size_2d_);
+    occupancy_buffer_.resize(buffer_size_, -1.0);
+    occupancy_buffer_2d_.resize(buffer_size_2d_, -1.0);
     
-    cache_all_.resize(buffer_size_);
-    cache_hit_.resize(buffer_size_);
-    cache_rayend_.resize(buffer_size_);
-    cache_traverse_.resize(buffer_size_);
+    cache_all_.resize(buffer_size_, 0);
+    cache_hit_.resize(buffer_size_, 0);
+    cache_rayend_.resize(buffer_size_, -1);
+    cache_traverse_.resize(buffer_size_, -1);
     raycast_num_ = 0;
-
-    fill(occupancy_buffer_.begin(), occupancy_buffer_.end(), -1.0);
-    fill(occupancy_buffer_2d_.begin(), occupancy_buffer_2d_.end(), -1.0);
-    fill(cache_all_.begin(), cache_all_.end(), 0);
-    fill(cache_hit_.begin(), cache_hit_.end(), 0);
-    fill(cache_rayend_.begin(), cache_rayend_.end(), -1);
-    fill(cache_traverse_.begin(), cache_traverse_.end(), -1);
 
     ros::Time t1, t2;
 
@@ -101,6 +99,7 @@ void MappingProcess::init(const ros::NodeHandle& nh)
 
 void MappingProcess::OdometryAndPointcloud_cb(const sensor_msgs::PointCloud2::ConstPtr &pcl_msg, const nav_msgs::Odometry::ConstPtr &odom_msg)
 {
+    std::lock_guard<std::recursive_mutex> data_guard(data_mutex_);
     // ros::Time t1 = ros::Time::now();
     have_odom_ = true;
     local_map_valid_ = true;
@@ -172,11 +171,16 @@ void MappingProcess::OdometryAndPointcloud_cb(const sensor_msgs::PointCloud2::Co
     // cout<< "The number of the grids which haven't been detected is :" << count(occupancy_buffer_.begin(), occupancy_buffer_.end(), -1) << endl;
     // ros::Time t2 = ros::Time::now();
     // cout<<"Time cost:    "<<(t2 - t1).toSec()<<endl;
+
+    // ROS_INFO("MappingProcess::OdometryAndPointcloud_cb end");
 }
 
 /*----------This function is used to display the local grid map in rviz---------------*/
 void MappingProcess::localOccVis_cb(const ros::TimerEvent& e)
 {
+    // ROS_INFO("MappingProcess::localOccVis_cb");
+    std::lock_guard<std::recursive_mutex> data_guard(data_mutex_);
+    // ROS_INFO("MappingProcess::localOccVis_cb begin work");
     curr_view_cloud_ptr_->points.clear();
     Eigen::Vector3i min_id, max_id;
     posToIndex(local_range_min_, min_id);
@@ -213,6 +217,7 @@ void MappingProcess::localOccVis_cb(const ros::TimerEvent& e)
 
 void MappingProcess::globalOccVis_cb(const ros::TimerEvent& e)
 {
+    std::lock_guard<std::recursive_mutex> data_guard(data_mutex_);
     //for vis 3d
     // history_view_cloud_ptr_->points.clear();
     // for (int x = 0; x < global_map_size_[0]; ++x)
@@ -259,6 +264,8 @@ void MappingProcess::globalOccVis_cb(const ros::TimerEvent& e)
 
 void MappingProcess::raycastProcess(const Eigen::Vector3d& t_wc, const pcl::PointCloud<pcl::PointXYZ>::Ptr laserCloudTransformed) //t_wc is the position of the lidar
 {
+    // ROS_INFO("MappingProcess::raycastProcess");
+    
     if(number_of_points_ == 0)
         return;
 
@@ -389,6 +396,8 @@ void MappingProcess::raycastProcess(const Eigen::Vector3d& t_wc, const pcl::Poin
         // }
 
     }
+    
+    // ROS_INFO("MappingProcess::raycastProcess end");
 }
 
 int MappingProcess::setCacheOccupancy(const Eigen::Vector3d& pos, int occ)

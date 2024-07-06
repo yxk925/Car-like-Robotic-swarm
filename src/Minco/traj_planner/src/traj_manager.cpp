@@ -531,6 +531,9 @@ bool TrajPlanner::RunMINCOParking()
 
 }
 
+void TrajPlanner::clearTrajs() {
+  kino_trajs_.clear();
+}
 // void TrajPlanner::publishTraj2Controller()
 // {
 
@@ -585,7 +588,7 @@ bool TrajPlanner::RunMINCOParking()
 
 // }
 
-void TrajPlanner::publishTraj2Simulator()
+void TrajPlanner::publishTraj2Simulator() 
 {
 
     // ros::Time t0 = ros::Time::now();

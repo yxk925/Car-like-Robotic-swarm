@@ -15,9 +15,10 @@ void ReplanFSM::init(ros::NodeHandle &nh)
     nh_.param("fsm/target_x", target_x_, 0.0);
     nh_.param("fsm/target_y", target_y_, 0.0);
     nh_.param("fsm/target_yaw", target_yaw_, 0.0);
-    mapping_ptr_.reset(new MappingProcess);
-    mapping_ptr_->init(nh);
 
+    mapping_ptr_= std::make_shared<MappingProcess>();
+    mapping_ptr_->init(nh);
+ 
     planner_ptr_.reset(new TrajPlanner);
     planner_ptr_->setMap(mapping_ptr_);
     planner_ptr_->init(nh);
@@ -253,6 +254,8 @@ void ReplanFSM::execFSMCallback(const ros::TimerEvent &e)
             // reach end
             if((cur_pos_ - end_pt_.head(2)).norm() < 0.5 && abs(cur_yaw_ - end_pt_(2) < 0.15 && abs(cur_vel_) < 0.2))
             {
+                planner_ptr_->clearTrajs();
+                planner_ptr_->publishTraj2Simulator();
                 changeFSMExecState(WAIT_TARGET, "FSM");
                 have_target_ = false;
                 goto force_return;

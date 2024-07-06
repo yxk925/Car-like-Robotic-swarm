@@ -10,9 +10,6 @@
     <arg name="lidar_height" value="0.0"/>
     <arg name="cars_num" value="1" />
 
-    <include file="$(find traj_planner)/launch/rviz.launch">
-    </include>
-
     <include file="$(find swarm_bridge)/launch/bridge.launch">
         <arg name="car_id" value="999" />
         <arg name="broadcast_ip" value="127.0.0.255" />

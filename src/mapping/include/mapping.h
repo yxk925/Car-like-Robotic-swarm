@@ -19,13 +19,15 @@
 // #include "nodelet/nodelet.h"
 
 #include <queue>
+#include <mutex>
 
 #define INVALID_IDX -1
 
 class MappingProcess
 {
+    std::recursive_mutex data_mutex_;
+    
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MappingProcess() {};
     ~MappingProcess() {}; 
     void init(const ros::NodeHandle& nh);

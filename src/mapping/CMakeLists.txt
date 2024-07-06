@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(mapping)
 
+set(CMAKE_CXX_FLAGS "-std=c++17 -g")
+
 find_package(catkin REQUIRED COMPONENTS
   # message_generation
   std_msgs

@@ -64,8 +64,14 @@ double guassRandom(double std)
 
 void rcvTrajCallBack(const kinematics_simulator::TrajectoryConstPtr traj_msg)
 {
-    rcv_traj = true;
+    if (traj_msg->minco_path.trajs.size() == 0) {
+        ROS_INFO("received empty traj, clear local traj");
+        newest_trajectory.clearSingul();
+        rcv_traj = false;
+        return;
+    }
 
+    ROS_INFO("received trajs");
 	plan_utils::MinJerkOpt jerk_opter;
     // std::vector<plan_utils::LocalTrajData> minco_traj;
     plan_utils::TrajContainer surround_traj;
@@ -106,57 +112,64 @@ void rcvTrajCallBack(const kinematics_simulator::TrajectoryConstPtr traj_msg)
         // minco_traj.push_back(sur_traj);
     }
 	newest_trajectory = surround_traj;	
+
+    rcv_traj = true;
 }
 
 void transRoutine(const ros::TimerEvent &e)
 {
-	double time_now = ros::Time::now().toSec();
+    double time_now = ros::Time::now().toSec();
 
-	if(rcv_traj)
-	{
-		plan_utils::Trajectory* cur_segment;
-		int segment_Id = newest_trajectory.locateSingulId(time_now);
-		double segment_start_time = newest_trajectory.singul_traj[segment_Id].start_time;
-		double segment_end_time   = newest_trajectory.singul_traj[segment_Id].end_time;
-		double pt_time;
-		if(time_now - segment_end_time < 0)
-			pt_time = time_now - segment_start_time;
-		else
-			pt_time = segment_end_time - segment_start_time;
-		cur_segment = &newest_trajectory.singul_traj[segment_Id].traj;
+    if(!rcv_traj)
+    {
+        return;
+    }
 
-		int singul;
-		Eigen::Matrix2d B_h;
-		B_h << 0, -1,
-			   1,  0;
-		double cur_yaw, vel, angul_vel;
-		Eigen::Vector2d sigma, dsigma, ddsigma;
-		sigma   = cur_segment->getPos(pt_time);
-		dsigma  = cur_segment->getdSigma(pt_time);
-		ddsigma = cur_segment->getddSigma(pt_time);
-		singul  = cur_segment->getSingul(pt_time);
-		cur_yaw = cur_segment->getAngle(pt_time);
-		vel = singul * dsigma.norm();
-		angul_vel = (ddsigma.transpose() * B_h * dsigma)(0, 0) / dsigma.squaredNorm();
+    plan_utils::Trajectory* cur_segment;
+    int segment_Id = newest_trajectory.locateSingulId(time_now);
+    double segment_start_time = newest_trajectory.singul_traj[segment_Id].start_time;
+    double segment_end_time   = newest_trajectory.singul_traj[segment_Id].end_time;
+    double pt_time;
+    if(time_now - segment_end_time > 0) {
+        ROS_INFO("segment time out, clear");
+        newest_trajectory.clearSingul();
+        rcv_traj = false;
+    }
+        
+    pt_time = segment_end_time - segment_start_time;
+    cur_segment = &newest_trajectory.singul_traj[segment_Id].traj;
 
-		x = sigma(0); y = sigma(1);
-		yaw = cur_yaw;
-		vx = vel; vy = 0;
-		w = angul_vel;
-	}
+    int singul;
+    Eigen::Matrix2d B_h;
+    B_h << 0, -1,
+            1,  0;
+    double cur_yaw, vel, angul_vel;
+    Eigen::Vector2d sigma, dsigma, ddsigma;
+    sigma   = cur_segment->getPos(pt_time);
+    dsigma  = cur_segment->getdSigma(pt_time);
+    ddsigma = cur_segment->getddSigma(pt_time);
+    singul  = cur_segment->getSingul(pt_time);
+    cur_yaw = cur_segment->getAngle(pt_time);
+    vel = singul * dsigma.norm();
+    angul_vel = (ddsigma.transpose() * B_h * dsigma)(0, 0) / dsigma.squaredNorm();
 
-  geometry_msgs::Twist cmd_vel;
+    x = sigma(0); y = sigma(1);
+    yaw = cur_yaw;
+    vx = vel; vy = 0;
+    w = angul_vel;
 
-  cmd_vel.linear.x = vx;
-  cmd_vel.angular.z = w;
+    geometry_msgs::Twist cmd_vel;
 
-  cmd_vel_push.publish(cmd_vel);
+    cmd_vel.linear.x = vx;
+    cmd_vel.angular.z = w;
+
+    cmd_vel_push.publish(cmd_vel);
 }
 
 // main loop
 int main (int argc, char** argv) 
 {        
-    ros::init (argc, argv, "cmd_tra_node");
+    ros::init (argc, argv, "cmd_trans_node");
     ros::NodeHandle nh("~");
 
 	

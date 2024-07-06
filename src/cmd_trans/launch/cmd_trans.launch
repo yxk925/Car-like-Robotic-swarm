@@ -5,7 +5,7 @@
     
     <node pkg="cmd_trans" name="cmd_trans" type="cmd_trans_node" output="screen" >
       <remap from="~traj" to="$(arg traj_topic)"/>
-      <remap from="~cmd_vel" to="$(arg cmd_vel)"/>
+      <remap from="~cmd_vel" to="$(arg cmd_topic)"/>
 
       <param name="car_id" value="$(arg car_id)"/>
 

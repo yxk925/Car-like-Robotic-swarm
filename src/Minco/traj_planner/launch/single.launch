@@ -10,8 +10,8 @@
     <arg name="lidar_height" value="0.0"/>
     <arg name="cars_num" value="1" />
 
-    <include file="$(find traj_planner)/launch/rviz.launch">
-    </include>
+    <!--include file="$(find traj_planner)/launch/rviz.launch">
+    </include-->
 
     <node pkg ="map_generator" name ="map_generator_easy" type ="map_generator_easy.py" output = "screen" respawn="true" >
         <param name="map/x_size" value="$(arg map_size_x)"/>

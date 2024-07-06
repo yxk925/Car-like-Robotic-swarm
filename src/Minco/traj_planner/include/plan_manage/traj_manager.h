@@ -34,7 +34,6 @@ using std::vector;
 class TrajPlanner
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     ///////////////////////////////////////////////////////////////
     TrajPlanner(){}
     ~TrajPlanner(){}
@@ -48,6 +47,7 @@ public:
     void setMap(const MappingProcess::Ptr& ptr);
     void RunOnceParking();
     bool RunMINCOParking();
+    void clearTrajs();
     // void publishTraj2Controller();
     void publishTraj2Simulator();
     void broadcastTraj2SwarmBridge();
