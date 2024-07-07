@@ -10,11 +10,12 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -g")
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-    Eigen3
     kinematics_simulator
     geometry_msgs
     traj_planner
 )
+
+find_package(Eigen3 REQUIRED)
 
 message("catkin_INCLUDE_DIRS=${catkin_INCLUDE_DIRS}")
 message("EIGEN3_INCLUDE_DIRS=${EIGEN3_INCLUDE_DIRS}")
